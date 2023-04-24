@@ -119,29 +119,30 @@ public class Responder
      * Build up a list of default responses from which we can pick
      * if we don't know what else to say.
      */
-    private void fillDefaultResponses()
-    {
-        Charset charset = Charset.forName("US-ASCII");
-        Path path = Paths.get(FILE_OF_DEFAULT_RESPONSES);
-        try (BufferedReader reader = Files.newBufferedReader(path, charset)) {
-            String response = reader.readLine();
-            while(response != null) {
-                defaultResponses.add(response);
-                response = reader.readLine();
+    private void fillDefaultResponses() {
+    Charset charset = Charset.forName("US-ASCII");
+    Path path = Paths.get(FILE_OF_DEFAULT_RESPONSES);
+    try (BufferedReader reader = Files.newBufferedReader(path, charset)) {
+        String response = reader.readLine();
+        while (response != null) {
+            String nextLine = reader.readLine();
+            while (nextLine != null && !nextLine.isEmpty()) {
+                response += " " + nextLine;
+                nextLine = reader.readLine();
             }
+            defaultResponses.add(response);
+            response = nextLine;
         }
-        catch(FileNotFoundException e) {
-            System.err.println("Unable to open " + FILE_OF_DEFAULT_RESPONSES);
-        }
-        catch(IOException e) {
-            System.err.println("A problem was encountered reading " +
-                               FILE_OF_DEFAULT_RESPONSES);
-        }
-        // Make sure we have at least one response.
-        if(defaultResponses.size() == 0) {
-            defaultResponses.add("Could you elaborate on that?");
-        }
+    } catch (FileNotFoundException e) {
+        System.err.println("Unable to open " + FILE_OF_DEFAULT_RESPONSES);
+    } catch (IOException e) {
+        System.err.println("A problem was encountered reading " + FILE_OF_DEFAULT_RESPONSES);
     }
+    // Make sure we have at least one response.
+    if (defaultResponses.size() == 0) {
+        defaultResponses.add("Could you elaborate on that?");
+    }
+}
 
     /**
      * Randomly select and return one of the default responses.
